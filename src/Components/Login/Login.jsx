@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Form, Button, Container, Row, Col, Card, Alert } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
-function Login() {
+function MainLogin() {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
   console.log("API URL:", apiUrl); // should show https://localhost:44316 
 
@@ -35,8 +35,10 @@ function Login() {
     if (response.ok) {
       const data = await response.json();
       setError('');
-      // Save token or user info if needed
-      // localStorage.setItem("token", data.token);
+      // 🔐 Save token and user info to localStorage or sessionStorage
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('username', data.username);
+      localStorage.setItem('administratorId', data.administratorId);
       navigate('/main');
     } else if (response.status === 401) {
       setError('Invalid email or password');
@@ -99,4 +101,4 @@ function Login() {
   );
 }
 
-export default Login;
+export default MainLogin;

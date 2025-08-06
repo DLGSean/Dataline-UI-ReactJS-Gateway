@@ -6,7 +6,9 @@ function Header() {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    // Add your logout logic here
+    localStorage.removeItem('token');
+    localStorage.removeItem('username');
+    localStorage.removeItem('administratorId');
     navigate('/');
   };
 
