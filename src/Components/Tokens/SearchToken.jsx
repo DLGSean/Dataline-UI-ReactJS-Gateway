@@ -24,7 +24,7 @@ const SearchToken = ({ onDateChange }) => {
 
   return (
     <Container className="mt-5">
-      <Card className="shadow p-4">
+      <Card className="p-4">
         <Card.Title className="text-center mb-4 fs-4">Search Tokens</Card.Title>
         <Form onSubmit={onSubmit}>
           <Row className="mb-3">

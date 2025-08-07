@@ -1,38 +1,35 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { Container, Card, Button, Alert } from 'react-bootstrap';
 import Header from '../Header';
 import Footer from '../Footer';
-import authFetch from '../Utils/authFetch'; // ✅ Use reusable fetch
+import authFetch from '../Utils/authFetch'; // ✅ Import authFetch
 
-function DeleteToken() {
-  const { tokenId } = useParams();
-  const { state } = useLocation(); // You can pass token details via navigate
+function DeleteAdministrator() {
+  const { administratorId } = useParams();
+  const { state } = useLocation();
   const navigate = useNavigate();
   const [deleted, setDeleted] = useState(false);
   const [error, setError] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
 
   const handleDelete = async () => {
-    const token = localStorage.getItem('token'); // 🔐 Get the token
     setIsDeleting(true);
+
     try {
       const apiUrl = import.meta.env.VITE_API_BASE_URL;
-      const response = await authFetch(
-        `${apiUrl}/MYOBExoSync/DeleteToken/${tokenId}`,
-        { method: 'DELETE' },
-        navigate
-      );
 
-      if (!response) return; // handled 401
+      const responseText = await authFetch(`${apiUrl}/Administrator/DeleteAdministrator/${administratorId}`, {
+        method: 'DELETE'
+      }, navigate); // ✅ navigate for 401 redirect
 
-      // Manually check success from response
-      if (response.includes("not found") || response.includes("error")) {
-        throw new Error(response || 'Delete failed');
+      if (!responseText) {
+        // authFetch already handled redirect or error
+        return;
       }
 
       setDeleted(true);
-      setTimeout(() => navigate('/tokens'), 2000);
+      setTimeout(() => navigate('/administrators'), 2000);
     } catch (err) {
       console.error(err);
       setError(err.message);
@@ -42,7 +39,7 @@ function DeleteToken() {
   };
 
   const handleCancel = () => {
-    navigate('/tokens');
+    navigate('/administrators');
   };
 
   return (
@@ -52,12 +49,12 @@ function DeleteToken() {
         <Card className="shadow mx-auto" style={{ maxWidth: '600px' }}>
           <Card.Body>
             <Card.Title className="text-center text-danger mb-4">
-              <i className="bi bi-trash3-fill me-2"></i>Delete Token
+              <i className="bi bi-trash3-fill me-2"></i>Delete Administrator
             </Card.Title>
 
             {deleted && (
               <Alert variant="success" className="text-center">
-                ✅ Token successfully deleted! Redirecting...
+                ✅ Administrator successfully deleted! Redirecting...
               </Alert>
             )}
 
@@ -70,17 +67,17 @@ function DeleteToken() {
             {!deleted && (
               <>
                 <p className="text-center mb-4">
-                Are you sure you want to delete:
-                    <br />
-                    <strong>Token ID:</strong> {tokenId}
-                    <br />
-                    <strong>Account ID:</strong> {state?.accountId ?? '[N/A]'}
-                    <br />
-                    <strong>Account Name:</strong> {state?.accountName ?? '[N/A]'}
+                  Are you sure you want to delete:
+                  <br />
+                  <strong>Administrator ID:</strong> {administratorId}
+                  <br />
+                  <strong>Username:</strong> {state?.username ?? '[N/A]'}
                 </p>
+
                 <div className="d-flex justify-content-center gap-3">
                   <Button variant="danger" onClick={handleDelete} disabled={isDeleting}>
-                    <i className="bi bi-trash me-2"></i> {isDeleting ? 'Deleting...' : 'Yes, Delete'}
+                    <i className="bi bi-trash me-2"></i>
+                    {isDeleting ? 'Deleting...' : 'Yes, Delete'}
                   </Button>
                   <Button variant="secondary" onClick={handleCancel}>
                     Cancel
@@ -96,4 +93,4 @@ function DeleteToken() {
   );
 }
 
-export default DeleteToken;
+export default DeleteAdministrator;

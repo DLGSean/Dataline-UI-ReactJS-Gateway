@@ -3,13 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { Container, Card, Form, Button, Row, Col, Alert } from 'react-bootstrap';
 import Header from '../Header';
 import Footer from '../Footer';
+import authFetch from '../Utils/authFetch'; // ✅ Use authFetch
 
-function AddToken() {
+function AddAdministrator() {
   const navigate = useNavigate();
   const [form, setForm] = useState({
-    accountId: '',
-    accountName: '',
-    expirationDate: '',
+    username: '',
+    password: '',
   });
 
   const [submitted, setSubmitted] = useState(false);
@@ -21,68 +21,48 @@ function AddToken() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!form.accountId || parseInt(form.accountId) <= 0) {
-      alert("❌ Account ID must be a positive number.");
+    if (!form.username.trim()) {
+      alert("❌ Username is required.");
       return;
     }
 
-    if (!form.accountName.trim()) {
-      alert("❌ Account Name is required.");
-      return;
-    }
-
-    if (!form.expirationDate) {
-      alert("❌ Expiration Date is required.");
+    if (!form.password) {
+      alert("❌ Password is required.");
       return;
     }
 
     try {
       const apiUrl = import.meta.env.VITE_API_BASE_URL;
-      const token = localStorage.getItem('token'); // 🔐 Get JWT token
 
-      const response = await fetch(`${apiUrl}/MYOBExoSync/AddToken`, {
+      const responseText = await authFetch(`${apiUrl}/Administrator/AddAdministrator`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}` // ✅ Add token to header
         },
-        body: JSON.stringify({
-          accountId: parseInt(form.accountId),
-          accountName: form.accountName,
-          expirationDate: form.expirationDate,
-        })
-      });
+        body: JSON.stringify(form)
+      }, navigate); // ✅ redirect on 401
 
-      if (!response.ok) {
-        const error = await response.text();
-        alert("❌ Failed to add token: " + error);
+      if (!responseText) {
+        // authFetch already handled the error or redirect
         return;
       }
 
       setSubmitted(true);
-      setForm({
-        accountId: '',
-        accountName: '',
-        expirationDate: '',
-      });
+      setForm({ username: '', password: '' });
 
       setTimeout(() => {
         setSubmitted(false);
-        navigate('/tokens');
+        navigate('/administrators');
       }, 1500);
     } catch (error) {
-      console.error('Error submitting token:', error);
-      alert("An error occurred while submitting the token.");
+      console.error('Error submitting administrator:', error);
+      alert("❌ Failed to add administrator: " + error.message);
     }
   };
 
   const handleCancel = () => {
-    setForm({
-      accountId: '',
-      accountName: '',
-      expirationDate: ''
-    });
-    navigate('/tokens');
+    setForm({ username: '', password: '' });
+    navigate('/administrators');
   };
 
   return (
@@ -92,13 +72,13 @@ function AddToken() {
         <Card className="shadow mx-auto" style={{ maxWidth: '600px' }}>
           <Card.Body>
             <Card.Title className="text-center mb-4 fs-4 d-flex justify-content-center align-items-center">
-              <i className="bi bi-key-fill text-primary me-2 fs-3"></i>
-              <span>Add New Token</span>
+              <i className="bi bi-person-fill text-primary me-2 fs-3"></i>
+              <span>Add New Administrator</span>
             </Card.Title>
 
             {submitted && (
               <Alert variant="success" className="text-center">
-                ✅ Token successfully added!
+                ✅ Administrator successfully added!
               </Alert>
             )}
 
@@ -106,52 +86,35 @@ function AddToken() {
               <Row className="mb-3">
                 <Col>
                   <Form.Group>
-                    <Form.Label>Account ID</Form.Label>
-                    <Form.Control
-                      type="number"
-                      min="1"
-                      placeholder="Enter Account ID"
-                      value={form.accountId}
-                      onChange={(e) => updateField('accountId', e.target.value)}
-                      required
-                    />
-                  </Form.Group>
-                </Col>
-              </Row>
-
-              <Row className="mb-3">
-                <Col>
-                  <Form.Group>
-                    <Form.Label>Account Name</Form.Label>
+                    <Form.Label>Username</Form.Label>
                     <Form.Control
                       type="text"
-                      placeholder="Enter Account Name"
-                      value={form.accountName}
-                      onChange={(e) => updateField('accountName', e.target.value)}
+                      placeholder="Enter username"
+                      value={form.username}
+                      onChange={(e) => updateField('username', e.target.value)}
                       required
                     />
                   </Form.Group>
                 </Col>
               </Row>
-
               <Row className="mb-3">
                 <Col>
                   <Form.Group>
-                    <Form.Label>Expiration Date</Form.Label>
+                    <Form.Label>Password</Form.Label>
                     <Form.Control
-                      type="date"
-                      value={form.expirationDate}
-                      onChange={(e) => updateField('expirationDate', e.target.value)}
+                      type="password"
+                      placeholder="Enter password"
+                      value={form.password}
+                      onChange={(e) => updateField('password', e.target.value)}
                       required
                     />
                   </Form.Group>
                 </Col>
               </Row>
-
               <div className="d-flex justify-content-center gap-3 mt-4">
                 <Button type="submit" variant="primary" className="px-4">
                   <i className="bi bi-plus-circle me-2"></i>
-                  Add Token
+                  Add Administrator
                 </Button>
                 <Button variant="secondary" className="px-4" onClick={handleCancel}>
                   <i className="bi bi-x-circle me-2"></i>
@@ -167,4 +130,4 @@ function AddToken() {
   );
 }
 
-export default AddToken;
+export default AddAdministrator;

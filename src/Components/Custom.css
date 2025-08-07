@@ -1,0 +1,16 @@
+.custom-navbar {
+  background-color: #01103A !important;
+}
+
+/* Stronger targeting of the header cells */
+.custom-table thead {
+  background-color: #4f1069 !important;
+}
+
+.custom-table thead th {
+  background-color: #4f1069 !important;
+  color: white !important;
+}
+.footer-custom {
+  background-color: #01103A;
+}

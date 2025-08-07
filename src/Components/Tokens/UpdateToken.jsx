@@ -1,16 +1,16 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Container, Card, Form, Button, Row, Col, Alert } from 'react-bootstrap';
-import { useParams, useLocation } from 'react-router-dom';
-import { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
+import { Container, Card, Form, Button, Alert } from 'react-bootstrap';
 import Header from '../Header';
 import Footer from '../Footer';
+import authFetch from '../Utils/authFetch'; // ✅ Reusable fetch with token
 
 function UpdateToken() {
-    const { tokenId } = useParams(); // from /update-token/:tokenId
-    const { state } = useLocation(); // passed from navigate('/update-token/:id', { state: item }
-    const navigate = useNavigate();
-    const [form, setForm] = useState({
+  const { tokenId } = useParams();
+  const { state } = useLocation();
+  const navigate = useNavigate();
+
+  const [form, setForm] = useState({
     tokenId: '',
     accountId: '',
     accountName: '',
@@ -19,31 +19,26 @@ function UpdateToken() {
     refresh: false
   });
 
-    useEffect(() => {
+  const [submitted, setSubmitted] = useState(false);
+
+  useEffect(() => {
     if (state) {
-        setForm({
+      setForm({
         tokenId: state.tokenId || '',
-        accountId: state.accountId || '', 
+        accountId: state.accountId || '',
         accountName: state.accountName || '',
         expirationDate: state.expirationDate ? state.expirationDate.split('T')[0] : '',
         active: state.active ?? true,
-        refresh: false // reset manually for updates
-        });
-    } else if (tokenId) {
-        // Optional: fetch from server using tokenId
-        // fetch(`${apiUrl}/GetTokenById/${tokenId}`).then(...)
+        refresh: false
+      });
     }
-    }, [state, tokenId]);
-
-
-  const [submitted, setSubmitted] = useState(false);
+  }, [state]);
 
   const updateField = (field, value) => {
     setForm(prev => ({ ...prev, [field]: value }));
   };
 
   const handleSubmit = async (e) => {
-    const token = localStorage.getItem('token'); // 🔐 Get the token
     e.preventDefault();
 
     if (!form.tokenId || parseInt(form.tokenId) <= 0) {
@@ -63,24 +58,26 @@ function UpdateToken() {
 
     try {
       const apiUrl = import.meta.env.VITE_API_BASE_URL;
-      const response = await fetch(`${apiUrl}/MYOBExoSync/UpdateToken`, {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`, // ✅ Include token
+      const response = await authFetch(
+        `${apiUrl}/MYOBExoSync/UpdateToken`,
+        {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            tokenId: parseInt(form.tokenId),
+            accountName: form.accountName,
+            expirationDate: form.expirationDate,
+            active: form.active,
+            refresh: form.refresh
+          })
         },
-        body: JSON.stringify({
-          tokenId: parseInt(form.tokenId),
-          accountName: form.accountName,
-          expirationDate: form.expirationDate,
-          active: form.active,
-          refresh: form.refresh
-        })
-      });
+        navigate
+      );
 
-      if (!response.ok) {
-        const error = await response.text();
-        alert("❌ Failed to update token: " + error);
+      if (!response) return; // authFetch handled 401 already
+
+      if (response.toLowerCase().includes("error")) {
+        alert("❌ Failed to update token: " + response);
         return;
       }
 
@@ -122,25 +119,25 @@ function UpdateToken() {
                 <Form.Control
                   type="number"
                   min="1"
-                  placeholder="Enter Token ID"
                   value={form.tokenId}
                   onChange={(e) => updateField('tokenId', e.target.value)}
                   required
                 />
               </Form.Group>
-            <Form.Group className="mb-3">
+
+              <Form.Group className="mb-3">
                 <Form.Label>Account ID</Form.Label>
-                    <Form.Control
-                        type="text"
-                        value={form.accountId}
-                        disabled // ✅ Read-only
-                    />
-            </Form.Group>
+                <Form.Control
+                  type="text"
+                  value={form.accountId}
+                  disabled
+                />
+              </Form.Group>
+
               <Form.Group className="mb-3">
                 <Form.Label>Account Name</Form.Label>
                 <Form.Control
                   type="text"
-                  placeholder="Enter Account Name"
                   value={form.accountName}
                   onChange={(e) => updateField('accountName', e.target.value)}
                   required
@@ -179,12 +176,10 @@ function UpdateToken() {
 
               <div className="d-flex justify-content-center gap-3 mt-4">
                 <Button type="submit" variant="warning" className="px-4">
-                  <i className="bi bi-save2 me-2"></i>
-                  Update Token
+                  <i className="bi bi-save2 me-2"></i>Update Token
                 </Button>
                 <Button variant="secondary" className="px-4" onClick={handleCancel}>
-                  <i className="bi bi-x-circle me-2"></i>
-                  Cancel
+                  <i className="bi bi-x-circle me-2"></i>Cancel
                 </Button>
               </div>
             </Form>

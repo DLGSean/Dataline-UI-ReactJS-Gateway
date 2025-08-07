@@ -4,26 +4,27 @@ import { useNavigate } from 'react-router-dom';
 
 const formatDate = (dateStr) => {
   const date = new Date(dateStr);
-  return isNaN(date) ? '' : date.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  });
+  return isNaN(date)
+    ? ''
+    : date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+      });
 };
 
-function ListOfToken({ items = [], onEdit, onDelete }) {
+function ListOfAdministrator({ items = [], onEdit, onDelete }) {
   const [currentPage, setCurrentPage] = useState(1);
-  const navigate = useNavigate();
   const itemsPerPage = 10;
-
+  const navigate = useNavigate();
   const totalPages = Math.ceil(items.length / itemsPerPage);
   const paginatedItems = items.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
 
-  const handleAddToken = () => {
-    navigate('/add-token');
+  const handleAddAdministrator = () => {
+    navigate('/add-administrator');
   };
 
   const handlePageChange = (page) => {
@@ -48,7 +49,7 @@ function ListOfToken({ items = [], onEdit, onDelete }) {
     }
 
     return (
-      <Pagination className="justify-content-center mt-4">
+      <Pagination className="justify-content-center mt-3">
         <Pagination.Prev
           onClick={() => handlePageChange(currentPage - 1)}
           disabled={currentPage === 1}
@@ -64,32 +65,30 @@ function ListOfToken({ items = [], onEdit, onDelete }) {
 
   return (
     <Container className="mt-4">
-      <Card className="shadow-sm">
+      <Card className="shadow">
         <Card.Body>
+
           {/* Title and Add Button */}
           <Row className="align-items-center mb-4">
             <Col>
               <h5 className="mb-0">List of Tokens</h5>
             </Col>
             <Col className="text-end">
-              <Button variant="success" onClick={handleAddToken}>
-                <i className="bi bi-plus-lg me-1"></i> Add Token
+              <Button variant="success" onClick={handleAddAdministrator}>
+                <i className="bi bi-plus-lg me-1"></i> Add Administrator
               </Button>
             </Col>
           </Row>
-
-          {/* Token Table */}
+		  
           <div className="table-responsive">
-            <Table striped bordered hover responsive className="custom-table">
-              <thead>
+            <Table striped bordered hover responsive>
+              <thead className="table-dark">
                 <tr>
                   <th>#</th>
-                  <th>Token ID</th>
-                  <th>Account ID</th>
-                  <th>Account Name</th>
-                  <th style={{ minWidth: '150px' }}>Token</th>
+                  <th>Administrator ID</th>
+                  <th>User Name</th>
                   <th>Date Created</th>
-                  <th>Date Expiration</th>
+                  <th>Date Update</th>
                   <th>Active</th>
                   <th>Actions</th>
                 </tr>
@@ -97,16 +96,12 @@ function ListOfToken({ items = [], onEdit, onDelete }) {
               <tbody>
                 {paginatedItems.length > 0 ? (
                   paginatedItems.map((item, index) => (
-                    <tr key={item.tokenId || index}>
+                    <tr key={item.administratorId || index}>
                       <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
-                      <td>{item.tokenId}</td>
-                      <td>{item.accountId}</td>
-                      <td>{item.accountName}</td>
-                      <td style={{ wordBreak: 'break-all', fontFamily: 'monospace' }}>
-                        {item.token}
-                      </td>
+                      <td>{item.administratorId}</td>
+                      <td>{item.username}</td>
                       <td>{formatDate(item.dateCreated)}</td>
-                      <td>{formatDate(item.expirationDate)}</td>
+                      <td>{formatDate(item.dateUpdate)}</td>
                       <td>
                         {item.active ? (
                           <Badge bg="success">Active</Badge>
@@ -136,8 +131,8 @@ function ListOfToken({ items = [], onEdit, onDelete }) {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="9" className="text-center text-muted">
-                      No tokens found.
+                    <td colSpan="7" className="text-center text-muted">
+                      No administrators found.
                     </td>
                   </tr>
                 )}
@@ -145,17 +140,15 @@ function ListOfToken({ items = [], onEdit, onDelete }) {
             </Table>
           </div>
 
-          {/* Pagination */}
           {items.length > itemsPerPage && renderPagination()}
         </Card.Body>
       </Card>
-
       {/* Optional Total Count */}
       <div className="text-end text-muted mt-2">
-        Total Tokens: <strong>{items.length}</strong>
+        Total Administrators: <strong>{items.length}</strong>
       </div>
     </Container>
   );
 }
 
-export default ListOfToken;
+export default ListOfAdministrator;

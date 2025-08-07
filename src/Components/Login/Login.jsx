@@ -1,103 +1,133 @@
-import React, { useState } from 'react';
-import { Form, Button, Container, Row, Col, Card, Alert } from 'react-bootstrap';
+import React, { useEffect, useState } from 'react';
+import {Button } from 'react-bootstrap';
+import './LoginPanel.css';
 import { useNavigate } from 'react-router-dom';
+
 function MainLogin() {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
-  console.log("API URL:", apiUrl); // should show https://localhost:44316 
 
+  const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [validated, setValidated] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
+  useEffect(() => {
+    setIsLogin(true);
+  }, []);
+
+  const handleToggle = (panel) => {
+    setIsLogin(panel === 'login');
+    setError('');
+  };
+
   const handleSubmit = async (event) => {
-  event.preventDefault();
-  setValidated(true);
+    event.preventDefault();
+    setValidated(true);
 
-  if (!email || !password) {
-    setError('Please fill in both fields');
-    return;
-  }
-
-  try {
-  const response = await fetch(`${apiUrl}/Login/Login`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      username: email,
-      password: password,
-    }),
-  });
-
-    if (response.ok) {
-      const data = await response.json();
-      setError('');
-      // 🔐 Save token and user info to localStorage or sessionStorage
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('username', data.username);
-      localStorage.setItem('administratorId', data.administratorId);
-      navigate('/main');
-    } else if (response.status === 401) {
-      setError('Invalid email or password');
-    } else {
-      setError('Something went wrong. Please try again.');
+    if (!email || !password) {
+      setError('Please fill in both fields');
+      return;
     }
-  } catch (error) {
-    console.error('Login error:', error);
-    setError('Network error. Please try again.');
-  }
-};
+
+    try {
+      const response = await fetch(`${apiUrl}/Login/Login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username: email, password }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('username', data.username);
+        localStorage.setItem('administratorId', data.administratorId);
+        navigate('/main');
+      } else if (response.status === 401) {
+        setError('Invalid email or password');
+      } else {
+        setError('Something went wrong. Please try again.');
+      }
+    } catch (err) {
+      console.error('Login error:', err);
+      setError('Network error. Please try again.');
+    }
+  };
+
   return (
-    <Container className="mt-5">
-      <Row className="justify-content-md-center">
-        <Col md={6}>
-          <Card>
-            <Card.Body>
-              <h3 className="mb-4">Login</h3>
+    <div className="login-wrapper">
+      <div className="login-reg-panel">
+        <input
+          type="radio"
+          name="active-log-panel"
+          id="log-login-show"
+          checked={isLogin}
+          onChange={() => handleToggle('login')}
+        />
+        <input
+          type="radio"
+          name="active-log-panel"
+          id="log-reg-show"
+          checked={!isLogin}
+          onChange={() => handleToggle('register')}
+        />
 
-              {error && <Alert variant="danger">{error}</Alert>}
+        <div className="login-info-box" style={{ display: isLogin ? 'none' : 'block' }}>
+          <h2>Have an account?</h2>
+          <p>Login here using your username and password</p>
+          <label htmlFor="log-login-show">Login</label>
+        </div>
 
-              <Form noValidate validated={validated} onSubmit={handleSubmit}>
-                <Form.Group controlId="formBasicEmail" className="mb-3">
-                  <Form.Label>Email address</Form.Label>
-                  <Form.Control
-                    required
-                    type="text"
-                    placeholder="Enter email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
-                  <Form.Control.Feedback type="invalid">
-                    Please provide a valid email.
-                  </Form.Control.Feedback>
-                </Form.Group>
+        <div className="register-info-box" style={{ display: isLogin ? 'block' : 'none' }}>
+          <h2>Don't have an account?</h2>
+          <p>Register here using your details</p>
+          <label htmlFor="log-reg-show">Register</label>
+        </div>
 
-                <Form.Group controlId="formBasicPassword" className="mb-3">
-                  <Form.Label>Password</Form.Label>
-                  <Form.Control
-                    required
-                    type="password"
-                    placeholder="Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
-                  <Form.Control.Feedback type="invalid">
-                    Please enter your password.
-                  </Form.Control.Feedback>
-                </Form.Group>
-
-                <Button variant="primary" type="submit" className="w-100">
+        <div className={`white-panel ${!isLogin ? 'right-log' : ''}`}>
+          {/* LOGIN FORM */}
+          <div className={`login-show ${isLogin ? 'show-log-panel' : ''}`}>
+            <h2>LOGIN</h2>
+            <form onSubmit={handleSubmit} noValidate>
+              <input
+                type="text"
+                placeholder="Username"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+              <input
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              {/* <input type="submit" value="Login" /> */}
+              <div className="text-center mt-3">
+                <Button variant="primary" type="submit" className="px-4">
+                  <i className="bi bi-key me-2"></i>
                   Login
                 </Button>
-              </Form>
-            </Card.Body>
-          </Card>
-        </Col>
-      </Row>
-    </Container>
+              </div>
+              
+              {error && <p className="error-message">{error}</p>}
+            </form>
+              <a href="#">Forgot password?</a>
+          </div>
+
+          {/* REGISTER FORM */}
+          <div className={`register-show ${!isLogin ? 'show-log-panel' : ''}`}>
+            <h2>REGISTER</h2>
+            <input type="text" placeholder="Email" />
+            <input type="password" placeholder="Password" />
+            <input type="password" placeholder="Confirm Password" />
+            <input type="button" value="Register" />
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 
