@@ -23,7 +23,7 @@ function BodyAdministrator() {
         method: 'GET',
       }, navigate); // ✅ handles token and 401
       if (!result) return;
-      const parsed = JSON.parse(result);
+      const parsed = await result.json();
       updateData({ items: parsed });
     } catch (error) {
       console.error("Fetch error:", error);

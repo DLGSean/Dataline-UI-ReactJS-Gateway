@@ -29,7 +29,7 @@ function BodyToken() {
       );
 
       if (!result) return; // Already redirected on 401
-      const parsed = JSON.parse(result);
+      const parsed = await result.json(); // ✅ FIXED: Correctly parse response
       updateData({ items: parsed });
     } catch (error) {
       console.error("Fetch error:", error);

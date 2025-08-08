@@ -1,0 +1,47 @@
+.bg-login {
+  background: linear-gradient(to right, #01103A);
+}
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+/* Custom login/register button */
+.btn-login-gradient {
+  background: linear-gradient(to right, #01103A, #4f1069);
+  border: none;
+  color: white;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  padding: 0.6rem 1rem;
+  border-radius: 0.375rem;
+}
+
+.btn-login-gradient:hover {
+  background: linear-gradient(to right, #4f1069, #01103A);
+  color: white;
+}
+
+.card-title-header {
+  background-color: #4f1069;
+  color: white;
+  padding: 0.75rem;
+  border-radius: 0.25rem;
+}
+
+.hover-scale {
+  transition: transform 0.3s ease;
+}
+.hover-scale:hover {
+  transform: scale(1.03);
+}
+
+.card-title-header {
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+.main-content {
+  padding-top: 100px;
+  padding-bottom: 40px;
+}

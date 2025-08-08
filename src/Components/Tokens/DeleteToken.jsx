@@ -26,10 +26,13 @@ function DeleteToken() {
 
       if (!response) return; // handled 401
 
+      const text = await response.text(); // ✅ Get text from Response
+
       // Manually check success from response
-      if (response.includes("not found") || response.includes("error")) {
+      if (text.toLowerCase().includes("found")  || text.toLowerCase().includes("error")) {
         throw new Error(response || 'Delete failed');
       }
+      
 
       setDeleted(true);
       setTimeout(() => navigate('/tokens'), 2000);
@@ -48,7 +51,7 @@ function DeleteToken() {
   return (
     <div className="d-flex flex-column min-vh-100">
       <Header />
-      <Container className="flex-grow-1 my-5">
+       <Container className="flex-grow-1 my-5 pt-5 mt-5">
         <Card className="shadow mx-auto" style={{ maxWidth: '600px' }}>
           <Card.Body>
             <Card.Title className="text-center text-danger mb-4">

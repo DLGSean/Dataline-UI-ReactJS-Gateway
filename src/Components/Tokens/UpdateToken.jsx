@@ -76,8 +76,10 @@ function UpdateToken() {
 
       if (!response) return; // authFetch handled 401 already
 
-      if (response.toLowerCase().includes("error")) {
-        alert("❌ Failed to update token: " + response);
+      const text = await response.text(); // ✅ Get text from Response
+
+      if (text.toLowerCase().includes("error")) {
+        alert("❌ Failed to update token: " + text);
         return;
       }
 
@@ -99,7 +101,7 @@ function UpdateToken() {
   return (
     <div className="d-flex flex-column min-vh-100">
       <Header />
-      <Container className="flex-grow-1 my-5">
+      <Container className="flex-grow-1 my-5 pt-5 mt-5">
         <Card className="shadow mx-auto" style={{ maxWidth: '600px' }}>
           <Card.Body>
             <Card.Title className="text-center mb-4 fs-4 d-flex justify-content-center align-items-center">

@@ -45,7 +45,7 @@ function DeleteAdministrator() {
   return (
     <div className="d-flex flex-column min-vh-100">
       <Header />
-      <Container className="flex-grow-1 my-5">
+       <Container className="flex-grow-1 my-5 pt-5 mt-5">
         <Card className="shadow mx-auto" style={{ maxWidth: '600px' }}>
           <Card.Body>
             <Card.Title className="text-center text-danger mb-4">

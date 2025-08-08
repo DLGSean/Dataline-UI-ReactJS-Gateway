@@ -1,27 +1,23 @@
-// ✅ src/Components/Utils/authFetch.js
+// /Utils/authFetch.js
 export default async function authFetch(url, options = {}, navigate) {
-  const token = localStorage.getItem('token');
-
-  const headers = {
-    'Authorization': `Bearer ${token}`,
-    ...(options.headers || {}),
-  };
+  const token = localStorage.getItem('token'); // adjust if using sessionStorage
 
   try {
     const response = await fetch(url, {
       ...options,
-      headers,
+      headers: {
+        ...(options.headers || {}),
+        Authorization: `Bearer ${token}`,
+      },
     });
 
-    if (response.status === 401) {
-      localStorage.removeItem('token');
-      if (navigate) navigate('/');
-      return null;
+    if (response.status === 401 && navigate) {
+      navigate('/login');
     }
 
-    return await response.text();
+    return response; // ✅ DO NOT call response.json() here
   } catch (error) {
-    console.error('authFetch error:', error);
+    console.error("authFetch error:", error);
     throw error;
   }
 }
