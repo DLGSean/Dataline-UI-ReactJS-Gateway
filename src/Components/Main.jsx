@@ -55,10 +55,17 @@ function Main() {
     fetchAdminStats();
 
     // SignalR setup
+    const hubBaseUrl = import.meta.env.VITE_HUB_BASE_URL || apiUrl.replace('/api', '');
+
     const connection = new HubConnectionBuilder()
-      .withUrl(`${apiUrl.replace('/api', '')}/tokenStatsHub`)
+      .withUrl(`${hubBaseUrl}/tokenStatsHub`, { withCredentials: true })
       .withAutomaticReconnect()
       .build();
+
+    // const connection = new HubConnectionBuilder()
+    //   .withUrl(`${apiUrl.replace('/api', '')}/tokenStatsHub`)
+    //   .withAutomaticReconnect()
+    //   .build();
 
     connection
       .start()
